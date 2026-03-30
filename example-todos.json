@@ -1,0 +1,60 @@
+{
+  "tasks": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "text": "Fix API rate limiting on /payments endpoint",
+      "status": "pending",
+      "filePath": "src/api/payments.ts",
+      "line": 47,
+      "createdBy": "Vish Kumar <vish@remitx.io>",
+      "assignedTo": null,
+      "reviewBatchId": null,
+      "createdAt": 1710000000000
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "text": "Add input validation for transfer amount",
+      "status": "review",
+      "filePath": "src/components/TransferForm.tsx",
+      "line": 112,
+      "createdBy": "Vish Kumar <vish@remitx.io>",
+      "assignedTo": null,
+      "reviewBatchId": "batch-1710000100000-abc12",
+      "createdAt": 1710000050000
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "text": "Refactor auth token refresh logic",
+      "status": "confirmed",
+      "filePath": "src/services/auth.ts",
+      "line": 23,
+      "createdBy": "Vish Kumar <vish@remitx.io>",
+      "assignedTo": null,
+      "reviewBatchId": "batch-1710000100000-abc12",
+      "createdAt": 1710000070000
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440004",
+      "text": "Write unit tests for currency conversion service",
+      "status": "assigned",
+      "filePath": "src/services/currency.ts",
+      "line": 1,
+      "createdBy": "Vish Kumar <vish@remitx.io>",
+      "assignedTo": "priya@remitx.io",
+      "reviewBatchId": null,
+      "createdAt": 1710000090000
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440005",
+      "text": "Update README with API documentation",
+      "status": "done",
+      "filePath": null,
+      "line": null,
+      "createdBy": "Vish Kumar <vish@remitx.io>",
+      "assignedTo": "Vish Kumar <vish@remitx.io>",
+      "reviewBatchId": null,
+      "createdAt": 1710000120000
+    }
+  ],
+  "version": 1
+}

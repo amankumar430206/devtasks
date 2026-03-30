@@ -1,0 +1,211 @@
+{
+  "name": "devtasks",
+  "displayName": "DevTasks",
+  "description": "Code-native task management for developers. Create, review, and assign tasks without leaving your editor.",
+  "version": "1.0.0",
+  "publisher": "devtasks",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "SCM Providers"
+  ],
+  "keywords": [
+    "todo",
+    "tasks",
+    "productivity",
+    "code review",
+    "assignment"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devtasks",
+          "title": "DevTasks",
+          "icon": "$(checklist)"
+        }
+      ]
+    },
+    "views": {
+      "devtasks": [
+        {
+          "id": "devTasksView",
+          "name": "Tasks",
+          "contextualTitle": "DevTasks"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "todo.add",
+        "title": "DevTasks: Add Task",
+        "icon": "$(add)"
+      },
+      {
+        "command": "todo.addFromSelection",
+        "title": "DevTasks: Add Task from Selection",
+        "icon": "$(selection)"
+      },
+      {
+        "command": "todo.open",
+        "title": "DevTasks: Open Task File",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "todo.markForReview",
+        "title": "DevTasks: Mark for Review",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "todo.confirmReview",
+        "title": "DevTasks: Confirm Review Batch",
+        "icon": "$(pass)"
+      },
+      {
+        "command": "todo.assignBatch",
+        "title": "DevTasks: Assign Tasks",
+        "icon": "$(person-add)"
+      },
+      {
+        "command": "todo.markDone",
+        "title": "DevTasks: Mark Done",
+        "icon": "$(check)"
+      },
+      {
+        "command": "todo.delete",
+        "title": "DevTasks: Delete Task",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "todo.refresh",
+        "title": "DevTasks: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "todo.parseComments",
+        "title": "DevTasks: Import TODO Comments from File",
+        "icon": "$(search)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "todo.add",
+          "when": "view == devTasksView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "todo.refresh",
+          "when": "view == devTasksView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "todo.assignBatch",
+          "when": "view == devTasksView",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "todo.open",
+          "when": "viewItem =~ /^task-/ && view == devTasksView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "todo.markForReview",
+          "when": "viewItem == task-pending && view == devTasksView",
+          "group": "actions@1"
+        },
+        {
+          "command": "todo.markDone",
+          "when": "viewItem =~ /^task-/ && view == devTasksView",
+          "group": "actions@2"
+        },
+        {
+          "command": "todo.assignBatch",
+          "when": "viewItem =~ /^task-/ && view == devTasksView",
+          "group": "actions@3"
+        },
+        {
+          "command": "todo.delete",
+          "when": "viewItem =~ /^task-/ && view == devTasksView",
+          "group": "danger@1"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "todo.addFromSelection",
+          "group": "devtasks@1",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "todo.parseComments",
+          "group": "devtasks@2"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "todo.add",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t",
+        "when": "!editorHasSelection"
+      },
+      {
+        "command": "todo.addFromSelection",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "todo.markForReview",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r"
+      }
+    ],
+    "configuration": {
+      "title": "DevTasks",
+      "properties": {
+        "devtasks.defaultAssignee": {
+          "type": "string",
+          "default": "",
+          "description": "Default assignee for new tasks (leave empty to use git user)"
+        },
+        "devtasks.autoParseOnOpen": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically parse TODO comments when a file is opened"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "package-install": "code --install-extension devtasks-1.0.0.vsix"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devtasks/devtasks"
+  }
+}
