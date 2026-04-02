@@ -2,7 +2,7 @@
   "name": "devtasks",
   "displayName": "DevTasks",
   "description": "Code-native task management for developers. Create, review, and assign tasks without leaving your editor.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "devtasks",
   "license": "MIT",
   "engines": {
@@ -92,6 +92,31 @@
         "command": "todo.parseComments",
         "title": "DevTasks: Import TODO Comments from File",
         "icon": "$(search)"
+      },
+      {
+        "command": "todo.openDashboard",
+        "title": "DevTasks: Open Kanban Dashboard",
+        "icon": "$(layout)"
+      },
+      {
+        "command": "todo.filterAll",
+        "title": "DevTasks: Filter — All Tasks",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "todo.filterMine",
+        "title": "DevTasks: Filter — My Tasks",
+        "icon": "$(person)"
+      },
+      {
+        "command": "todo.filterCurrentFile",
+        "title": "DevTasks: Filter — Current File",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "todo.filterUnassigned",
+        "title": "DevTasks: Filter — Unassigned",
+        "icon": "$(circle-slash)"
       }
     ],
     "menus": {
@@ -110,6 +135,26 @@
           "command": "todo.assignBatch",
           "when": "view == devTasksView",
           "group": "navigation@3"
+        },
+        {
+          "command": "todo.openDashboard",
+          "when": "view == devTasksView",
+          "group": "navigation@4"
+        },
+        {
+          "command": "todo.filterMine",
+          "when": "view == devTasksView",
+          "group": "filter@1"
+        },
+        {
+          "command": "todo.filterCurrentFile",
+          "when": "view == devTasksView",
+          "group": "filter@2"
+        },
+        {
+          "command": "todo.filterAll",
+          "when": "view == devTasksView",
+          "group": "filter@3"
         }
       ],
       "view/item/context": [
@@ -168,6 +213,11 @@
         "command": "todo.markForReview",
         "key": "ctrl+shift+r",
         "mac": "cmd+shift+r"
+      },
+      {
+        "command": "todo.openDashboard",
+        "key": "ctrl+shift+d",
+        "mac": "cmd+shift+d"
       }
     ],
     "configuration": {
@@ -196,6 +246,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -203,7 +254,6 @@
     "typescript": "^5.3.0",
     "@vscode/vsce": "^2.22.0"
   },
-  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/devtasks/devtasks"

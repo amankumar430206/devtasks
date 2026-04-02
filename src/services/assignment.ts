@@ -1,4 +1,4 @@
-import { readStore, writeStore } from './storage';
+import { readStore, writeStore } from "./storage";
 
 export function assignTasks(taskIds: string[], assignee: string): number {
   const store = readStore();
@@ -10,7 +10,7 @@ export function assignTasks(taskIds: string[], assignee: string): number {
       return {
         ...task,
         assignedTo: assignee,
-        status: 'assigned',
+        status: "assigned",
       };
     }
     return task;
@@ -27,8 +27,6 @@ export function getAssignedTasks(assignee: string) {
 
 export function getUniqueAssignees(): string[] {
   const store = readStore();
-  const assignees = store.tasks
-    .map((t) => t.assignedTo)
-    .filter((a): a is string => !!a);
+  const assignees = store.tasks.map((t) => t.assignedTo).filter((a): a is string => !!a);
   return [...new Set(assignees)];
 }

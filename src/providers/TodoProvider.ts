@@ -1,12 +1,13 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import * as fs from "fs";
 import { Task, TaskStatus, STATUS_ICONS, STATUS_LABELS, STATUS_ORDER } from "../models/task";
 import { getAllTasks } from "../services/storage";
 import { getProjectName, getWorkspaceRoot } from "../utils/project";
 
-// ─── Tree Item Types ────────────────────────────────────────────────────────
+// ─── Filter Types ────────────────────────────────────────────────────────────
+export type FilterMode = "all" | "mine" | "current-file" | "unassigned";
 
+// ─── Tree Item Types ─────────────────────────────────────────────────────────
 export class GroupItem extends vscode.TreeItem {
   constructor(
     public readonly status: TaskStatus,
@@ -20,7 +21,6 @@ export class GroupItem extends vscode.TreeItem {
     this.contextValue = "group";
   }
 }
-
 export class TaskItem extends vscode.TreeItem {
   constructor(public readonly task: Task) {
     super(task.text, vscode.TreeItemCollapsibleState.None);
@@ -29,10 +29,8 @@ export class TaskItem extends vscode.TreeItem {
     this.contextValue = `task-${task.status}`;
     this.tooltip = this.buildTooltip();
     this.description = this.buildDescription();
-
     this.iconPath = this.buildIcon();
 
-    // Make task clickable → opens file
     if (task.filePath) {
       this.command = {
         command: "todo.open",
@@ -64,8 +62,7 @@ export class TaskItem extends vscode.TreeItem {
       parts.push(this.task.line != null ? `${basename}:${this.task.line}` : basename);
     }
     if (this.task.assignedTo) {
-      const name = this.task.assignedTo.split(" ")[0]; // first name
-      parts.push(`→ ${name}`);
+      parts.push(`→ ${this.task.assignedTo.split(" ")[0]}`);
     }
     return parts.join("  ");
   }
@@ -82,25 +79,38 @@ export class TaskItem extends vscode.TreeItem {
   }
 }
 
-// ─── Provider ───────────────────────────────────────────────────────────────
-
+// ─── Provider ────────────────────────────────────────────────────────────────
 export class TodoProvider implements vscode.TreeDataProvider<GroupItem | TaskItem> {
   private _onDidChangeTreeData = new vscode.EventEmitter<GroupItem | TaskItem | undefined | null | void>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   private tasks: Task[] = [];
   private fileWatcher: vscode.FileSystemWatcher | undefined;
+  private filterMode: FilterMode = "all";
+  private currentUser: string = "";
 
   constructor() {
     this.loadTasks();
     this.setupFileWatcher();
   }
 
-  // ── Public API ─────────────────────────────────────────────────────────
+  // ── Public API ──────────────────────────────────────────────────────────
 
   refresh(): void {
     this.loadTasks();
     this._onDidChangeTreeData.fire();
+  }
+
+  setFilter(mode: FilterMode, currentUser?: string): void {
+    this.filterMode = mode;
+    if (currentUser) {
+      this.currentUser = currentUser;
+    }
+    this._onDidChangeTreeData.fire();
+  }
+
+  getFilter(): FilterMode {
+    return this.filterMode;
   }
 
   getTreeItem(element: GroupItem | TaskItem): vscode.TreeItem {
@@ -111,13 +121,10 @@ export class TodoProvider implements vscode.TreeDataProvider<GroupItem | TaskIte
     if (!element) {
       return this.buildGroups();
     }
-
     if (element instanceof GroupItem) {
-      // Sort: most recent first within group
       const sorted = [...element.tasks].sort((a, b) => b.createdAt - a.createdAt);
       return sorted.map((t) => new TaskItem(t));
     }
-
     return [];
   }
 
@@ -125,35 +132,55 @@ export class TodoProvider implements vscode.TreeDataProvider<GroupItem | TaskIte
     const pending = this.tasks.filter((t) => t.status === "pending").length;
     const done = this.tasks.filter((t) => t.status === "done").length;
     const project = getProjectName();
-    return `${project} — ${pending} pending / ${done} done`;
+    const filterLabel = this.filterMode !== "all" ? ` [${this.filterMode}]` : "";
+    return `${project}${filterLabel} — ${pending} pending / ${done} done`;
   }
 
   getAllTasks(): Task[] {
     return this.tasks;
   }
 
-  // ── Private ────────────────────────────────────────────────────────────
+  // ── Private ─────────────────────────────────────────────────────────────
 
   private loadTasks(): void {
     this.tasks = getAllTasks();
   }
 
+  private getFilteredTasks(): Task[] {
+    switch (this.filterMode) {
+      case "mine":
+        return this.tasks.filter((t) => t.assignedTo && this.currentUser && t.assignedTo.includes(this.currentUser));
+      case "unassigned":
+        return this.tasks.filter((t) => !t.assignedTo);
+      case "current-file": {
+        const activeFile = vscode.window.activeTextEditor?.document.uri.fsPath;
+        if (!activeFile) {
+          return this.tasks;
+        }
+        const workspaceRoot = getWorkspaceRoot();
+        const relPath = workspaceRoot ? activeFile.replace(workspaceRoot + path.sep, "") : activeFile;
+        return this.tasks.filter((t) => t.filePath === relPath);
+      }
+      default:
+        return this.tasks;
+    }
+  }
+
   private buildGroups(): GroupItem[] {
-    // Group tasks by status in defined order
+    const filtered = this.getFilteredTasks();
     return STATUS_ORDER.map((status) => {
-      const group = this.tasks.filter((t) => t.status === status);
-      // Sort pending first within overall list is handled by STATUS_ORDER
+      const group = filtered.filter((t) => t.status === status);
       return new GroupItem(status, group);
     });
   }
 
   private setupFileWatcher(): void {
     const root = getWorkspaceRoot();
-    if (!root) return;
-
+    if (!root) {
+      return;
+    }
     const pattern = new vscode.RelativePattern(root, ".vscode/todos.json");
     this.fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
-
     this.fileWatcher.onDidChange(() => this.refresh());
     this.fileWatcher.onDidCreate(() => this.refresh());
     this.fileWatcher.onDidDelete(() => this.refresh());
