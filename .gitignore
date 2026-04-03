@@ -1,4 +1,5 @@
 node_modules/
 out/
 *.vsix
+*.zip
 .vscode-test/
